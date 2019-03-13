@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        /* Set the size of the div element that contains the map */
+       #map {
+         height: 400px;  /* The height is 400 pixels */
+         width: 100%;  /* The width is the width of the web page */
+        }
+     </style>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/jq-3.3.1/dt-1.10.18/datatables.min.css"/>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.18/datatables.min.css"/>
+ 
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.18/datatables.min.js"></script><link href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/buttons/1.2.2/css/buttons.dataTables.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.4.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.4.2/js/buttons.html5.min.js"></script>
+        
+</head>
+<body>
+    <h1>asdasd</h1>
+    <div class="container bg-danger mb-12">   
+        <div class="col-sm-8  mx-auto pt-4 ">
+        <table id="example" class="table table-striped table-bordered " >
+        <thead class="sticky-top bg-danger">
+            <tr>
+                <th>Id</th>
+                <th>validFrom</th>
+                <th>streetNameIdentifier</th>
+                <th>verifiedAt </th>
+                <th>axisB </th>
+                <th>axisL </th>
+            </tr>
+            <tbody>
+ 
+            </tbody>
+        </thead>
+
+    </table>
+        </div> 
+        <div id="map" class="mt-4"></div>
+        <div id="map2" class="mt-4"></div>
+    </div>
+    <a href="http://127.0.0.1:8000/txt">DOWNLOAD</a>
+    <script>
+
+var map
+var markers=[]
+function initMap() {
+
+var place = {lat: 48.6087575, lng: 21.7329279};
+
+map = new google.maps.Map(
+document.getElementById('map'), {zoom: 6, center: place});
+
+}
+
+
+    
+$(document).ready(function() {
+$('#example').DataTable( {
+        "processing": true,
+        "serverSide": true,
+        dom: 'Bfrtip',
+    buttons: [{
+      extend: 'pdf',
+      title: 'Customized PDF Title',
+      filename: 'customized_pdf_file_name',
+      action: function(a,b,c,d){
+          console.log(a,b,c,d)
+      }
+  
+    }, {
+      extend: 'excel',
+      title: 'Customized EXCEL Title',
+      filename: 'customized_excel_file_name'
+    }],
+        
+  
+  
+   
+        ajax: "http://127.0.0.1:8000",    
+        "columns":[
+            {"data":"_id",
+            "render":function(data,type,row,meta){
+                if(row.axisB != 'None'){
+                    return data+'<p><button class="badge bg-primary">SHOW</button>';  
+                }else return data;
+                
+            }},
+            {"data": "validFrom"},
+            {"data":"streetNameIdentifier"},
+            {"data":"verifiedAt"},
+            {"data":"axisB"},
+            {"data":"axisL"}
+           
+        ],
+        createdRow: function (row, data, dataIndex) {
+            if(data.axisB != 'None'){
+                $(row.firstElementChild.firstElementChild).attr('data-longitude', data.axisB);
+                $(row.firstElementChild.firstElementChild).attr('data-latitude', data.axisL);
+                $(row.firstElementChild.firstElementChild).click(function(){       
+                
+
+                    
+                  var place = {lat: Number(data.axisB), lng: Number(data.axisL)}
+                   var marker = new google.maps.Marker({position: place});
+                   markers.push(marker)
+                   showMark(marker)
+
+                  
+
+                })
+
+            }
+
+        }
+    } );
+
+} );
+
+function showMark(marker){
+
+    for (var i = 0; i < markers.length; i++) {
+          markers[i].setMap(null);
+        }
+        map.setCenter(marker.getPosition());
+        marker.setMap(map)
+
+}
+</script>
+<!--Load the API from the specified URL
+* The async attribute allows the browser to render the page while the API loads
+* The key parameter will contain your own API key (which is not needed for this tutorial)
+* The callback parameter executes the initMap() function
+-->
+<script async defer
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDs2sHFhpIvwgwL4NPYnt6i_GCuB3NTgSc&callback=initMap">
+</script>
+
+
+
+
+
+        
+</body>
+
+
+
+
+</html>
